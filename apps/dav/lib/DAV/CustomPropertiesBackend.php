@@ -176,6 +176,21 @@ class CustomPropertiesBackend implements BackendInterface {
 			}
 		}
 
+		// substr of addressbooks/ => path is inside the CardDAV component
+		// three '/' => this a addressbook (no addressbook-home nor contact object)
+		if (substr($path, 0, 13) === 'addressbooks/' && substr_count($path, '/') === 3) {
+			$allRequestedProps = $propFind->getRequestedProperties();
+			$customPropertiesForShares = [
+				'{DAV:}displayname',
+			];
+
+			foreach ($customPropertiesForShares as $customPropertyForShares) {
+				if (in_array($customPropertyForShares, $allRequestedProps)) {
+					$requestedProps[] = $customPropertyForShares;
+				}
+			}
+		}
+
 		if (empty($requestedProps)) {
 			return;
 		}

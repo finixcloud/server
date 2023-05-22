@@ -116,7 +116,12 @@ class AddressBook extends \Sabre\CardDAV\AddressBook implements IShareable, IMov
 				'privilege' => '{DAV:}write',
 				'principal' => $this->getOwner(),
 				'protected' => true,
-			]
+			],
+            [
+                'privilege' => '{DAV:}write-properties',
+                'principal' => '{DAV:}authenticated',
+                'protected' => true,
+            ],
 		];
 
 		if ($this->getOwner() === 'principals/system/system') {
@@ -147,7 +152,7 @@ class AddressBook extends \Sabre\CardDAV\AddressBook implements IShareable, IMov
 		}
 
 		$acl = $this->carddavBackend->applyShareAcl($this->getResourceId(), $acl);
-		$allowedPrincipals = [$this->getOwner(), parent::getOwner(), 'principals/system/system'];
+		$allowedPrincipals = [$this->getOwner(), parent::getOwner(), 'principals/system/system', '{DAV:}authenticated'];
 		return array_filter($acl, function ($rule) use ($allowedPrincipals) {
 			return \in_array($rule['principal'], $allowedPrincipals, true);
 		});
@@ -221,10 +226,11 @@ class AddressBook extends \Sabre\CardDAV\AddressBook implements IShareable, IMov
 	}
 
 	public function propPatch(PropPatch $propPatch) {
-		if (isset($this->addressBookInfo['{http://owncloud.org/ns}owner-principal'])) {
-			throw new Forbidden();
+		// parent::propPatch will only update address books table
+		// if address book is shared, changes have to be made to the properties table
+		if (!$this->isShared()) {
+			parent::propPatch($propPatch);
 		}
-		parent::propPatch($propPatch);
 	}
 
 	public function getContactsGroups() {
