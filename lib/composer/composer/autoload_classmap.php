@@ -1553,6 +1553,7 @@ return array(
     'OC\\Security\\CSRF\\CsrfToken' => $baseDir . '/lib/private/Security/CSRF/CsrfToken.php',
     'OC\\Security\\CSRF\\CsrfTokenGenerator' => $baseDir . '/lib/private/Security/CSRF/CsrfTokenGenerator.php',
     'OC\\Security\\CSRF\\CsrfTokenManager' => $baseDir . '/lib/private/Security/CSRF/CsrfTokenManager.php',
+    'OC\\Security\\CSRF\\CsrfValidator' => $baseDir . '/lib/private/Security/CSRF/CsrfValidator.php',
     'OC\\Security\\CSRF\\TokenStorage\\SessionStorage' => $baseDir . '/lib/private/Security/CSRF/TokenStorage/SessionStorage.php',
     'OC\\Security\\Certificate' => $baseDir . '/lib/private/Security/Certificate.php',
     'OC\\Security\\CertificateManager' => $baseDir . '/lib/private/Security/CertificateManager.php',

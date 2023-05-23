@@ -37,6 +37,7 @@ use Exception;
 use OC\Authentication\Exceptions\PasswordLoginForbiddenException;
 use OC\Authentication\TwoFactorAuth\Manager;
 use OC\Security\Bruteforce\Throttler;
+use OC\Security\CSRF\CsrfValidator;
 use OC\User\LoginException;
 use OC\User\Session;
 use OCA\DAV\Connector\Sabre\Exception\PasswordLoginForbidden;
@@ -61,17 +62,21 @@ class Auth extends AbstractBasic {
 	private Manager $twoFactorManager;
 	private Throttler $throttler;
 
+	private CsrfValidator $csrfValidator;
+
 	public function __construct(ISession $session,
 								Session $userSession,
 								IRequest $request,
 								Manager $twoFactorManager,
 								Throttler $throttler,
+								CsrfValidator $csrfValidator,
 								string $principalPrefix = 'principals/users/') {
 		$this->session = $session;
 		$this->userSession = $userSession;
 		$this->twoFactorManager = $twoFactorManager;
 		$this->request = $request;
 		$this->throttler = $throttler;
+		$this->csrfValidator = $csrfValidator;
 		$this->principalPrefix = $principalPrefix;
 
 		// setup realm
@@ -191,7 +196,7 @@ class Auth extends AbstractBasic {
 	private function auth(RequestInterface $request, ResponseInterface $response): array {
 		$forcedLogout = false;
 
-		if (!$this->request->passesCSRFCheck() &&
+		if (!$this->csrfValidator->validate($this->request) &&
 			$this->requiresCSRFCheck()) {
 			// In case of a fail with POST we need to recheck the credentials
 			if ($this->request->getMethod() === 'POST') {

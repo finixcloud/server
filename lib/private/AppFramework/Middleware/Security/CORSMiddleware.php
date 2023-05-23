@@ -30,6 +30,7 @@ use OC\AppFramework\Middleware\Security\Exceptions\SecurityException;
 use OC\AppFramework\Utility\ControllerMethodReflector;
 use OC\Authentication\Exceptions\PasswordLoginForbiddenException;
 use OC\Security\Bruteforce\Throttler;
+use OC\Security\CSRF\CsrfValidator;
 use OC\User\Session;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
@@ -56,6 +57,7 @@ class CORSMiddleware extends Middleware {
 	private $session;
 	/** @var Throttler */
 	private $throttler;
+	private CsrfValidator $csrfValidator;
 
 	/**
 	 * @param IRequest $request
@@ -66,11 +68,13 @@ class CORSMiddleware extends Middleware {
 	public function __construct(IRequest $request,
 								ControllerMethodReflector $reflector,
 								Session $session,
-								Throttler $throttler) {
+								Throttler $throttler,
+								CsrfValidator $csrfValidator) {
 		$this->request = $request;
 		$this->reflector = $reflector;
 		$this->session = $session;
 		$this->throttler = $throttler;
+		$this->csrfValidator = $csrfValidator;
 	}
 
 	/**
@@ -94,7 +98,7 @@ class CORSMiddleware extends Middleware {
 			$pass = array_key_exists('PHP_AUTH_PW', $this->request->server) ? $this->request->server['PHP_AUTH_PW'] : null;
 
 			// Allow to use the current session if a CSRF token is provided
-			if ($this->request->passesCSRFCheck()) {
+			if ($this->csrfValidator->validate($this->request)) {
 				return;
 			}
 			$this->session->logout();

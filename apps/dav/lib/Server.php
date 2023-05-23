@@ -35,6 +35,8 @@
  */
 namespace OCA\DAV;
 
+use OC\Security\Bruteforce\Throttler;
+use OC\Security\CSRF\CsrfValidator;
 use OCA\DAV\AppInfo\PluginManager;
 use OCA\DAV\BulkUpload\BulkUploadPlugin;
 use OCA\DAV\CalDAV\BirthdayService;
@@ -120,7 +122,8 @@ class Server {
 			\OC::$server->getUserSession(),
 			\OC::$server->getRequest(),
 			\OC::$server->getTwoFactorAuthManager(),
-			\OC::$server->getBruteForceThrottler()
+			\OC::$server->get(Throttler::class),
+			\OC::$server->get(CsrfValidator::class)
 		);
 
 		// Set URL explicitly due to reverse-proxy situations

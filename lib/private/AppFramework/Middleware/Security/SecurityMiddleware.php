@@ -44,6 +44,7 @@ use OC\AppFramework\Middleware\Security\Exceptions\NotLoggedInException;
 use OC\AppFramework\Middleware\Security\Exceptions\SecurityException;
 use OC\AppFramework\Middleware\Security\Exceptions\StrictCookieMissingException;
 use OC\AppFramework\Utility\ControllerMethodReflector;
+use OC\Security\CSRF\CsrfValidator;
 use OC\Settings\AuthorizedGroupMapper;
 use OCP\App\AppPathNotFoundException;
 use OCP\App\IAppManager;
@@ -102,6 +103,7 @@ class SecurityMiddleware extends Middleware {
 	private $groupAuthorizationMapper;
 	/** @var IUserSession */
 	private $userSession;
+	private CsrfValidator $csrfValidator;
 
 	public function __construct(IRequest $request,
 								ControllerMethodReflector $reflector,
@@ -115,7 +117,8 @@ class SecurityMiddleware extends Middleware {
 								IAppManager $appManager,
 								IL10N $l10n,
 								AuthorizedGroupMapper $mapper,
-								IUserSession $userSession
+								IUserSession $userSession,
+								CsrfValidator $csrfValidator,
 	) {
 		$this->navigationManager = $navigationManager;
 		$this->request = $request;
@@ -130,6 +133,7 @@ class SecurityMiddleware extends Middleware {
 		$this->l10n = $l10n;
 		$this->groupAuthorizationMapper = $mapper;
 		$this->userSession = $userSession;
+		$this->csrfValidator = $csrfValidator;
 	}
 
 	/**
@@ -215,7 +219,7 @@ class SecurityMiddleware extends Middleware {
 			 * Additionally we allow Bearer authenticated requests to pass on OCS routes.
 			 * This allows oauth apps (e.g. moodle) to use the OCS endpoints
 			 */
-			if (!$this->request->passesCSRFCheck() && !(
+			if (!$this->csrfValidator->validate($this->request) && !(
 				$controller instanceof OCSController && (
 					$this->request->getHeader('OCS-APIREQUEST') === 'true' ||
 					str_starts_with($this->request->getHeader('Authorization'), 'Bearer ')

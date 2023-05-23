@@ -59,6 +59,7 @@ $authBackend = new \OCA\DAV\Connector\Sabre\Auth(
 	\OC::$server->getRequest(),
 	\OC::$server->getTwoFactorAuthManager(),
 	\OC::$server->getBruteForceThrottler(),
+	\OC::$server->get(\OC\Security\CSRF\CsrfValidator::class),
 	'principals/'
 );
 $authPlugin = new \Sabre\DAV\Auth\Plugin($authBackend);

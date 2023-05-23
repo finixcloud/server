@@ -23,13 +23,15 @@
 namespace Test;
 
 use OC\EventSourceFactory;
+use OC\Security\CSRF\CsrfValidator;
 use OCP\IEventSource;
 use OCP\IRequest;
 
 class EventSourceFactoryTest extends TestCase {
 	public function testCreate(): void {
 		$request = $this->createMock(IRequest::class);
-		$factory = new EventSourceFactory($request);
+		$csrfValidator = $this->createMock(CsrfValidator::class);
+		$factory = new EventSourceFactory($request, $csrfValidator);
 
 		$instance = $factory->create();
 		$this->assertInstanceOf(IEventSource::class, $instance);

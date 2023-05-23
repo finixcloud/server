@@ -233,7 +233,8 @@ class DIContainer extends SimpleContainer implements IAppContainer {
 					$c->get(IRequest::class),
 					$c->get(IControllerMethodReflector::class),
 					$c->get(IUserSession::class),
-					$c->get(OC\Security\Bruteforce\Throttler::class)
+					$c->get(OC\Security\Bruteforce\Throttler::class),
+					$c->get(OC\Security\CSRF\CsrfValidator::class),
 				)
 			);
 			$dispatcher->registerMiddleware(
@@ -257,7 +258,8 @@ class DIContainer extends SimpleContainer implements IAppContainer {
 				$server->getAppManager(),
 				$server->getL10N('lib'),
 				$c->get(AuthorizedGroupMapper::class),
-				$server->get(IUserSession::class)
+				$server->get(IUserSession::class),
+				$c->get(OC\Security\CSRF\CsrfValidator::class),
 			);
 			$dispatcher->registerMiddleware($securityMiddleware);
 			$dispatcher->registerMiddleware(

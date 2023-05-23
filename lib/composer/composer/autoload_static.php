@@ -1586,6 +1586,7 @@ class ComposerStaticInit749170dad3f5e7f9ca158f5a9f04f6a2
         'OC\\Security\\CSRF\\CsrfToken' => __DIR__ . '/../../..' . '/lib/private/Security/CSRF/CsrfToken.php',
         'OC\\Security\\CSRF\\CsrfTokenGenerator' => __DIR__ . '/../../..' . '/lib/private/Security/CSRF/CsrfTokenGenerator.php',
         'OC\\Security\\CSRF\\CsrfTokenManager' => __DIR__ . '/../../..' . '/lib/private/Security/CSRF/CsrfTokenManager.php',
+        'OC\\Security\\CSRF\\CsrfValidator' => __DIR__ . '/../../..' . '/lib/private/Security/CSRF/CsrfValidator.php',
         'OC\\Security\\CSRF\\TokenStorage\\SessionStorage' => __DIR__ . '/../../..' . '/lib/private/Security/CSRF/TokenStorage/SessionStorage.php',
         'OC\\Security\\Certificate' => __DIR__ . '/../../..' . '/lib/private/Security/Certificate.php',
         'OC\\Security\\CertificateManager' => __DIR__ . '/../../..' . '/lib/private/Security/CertificateManager.php',
