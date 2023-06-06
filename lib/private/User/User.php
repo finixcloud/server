@@ -116,7 +116,7 @@ class User implements IUser {
 			$this->urlGenerator = \OC::$server->getURLGenerator();
 		}
 		// TODO: inject
-		$this->dispatcher = \OC::$server->query(IEventDispatcher::class);
+		$this->dispatcher = \OCP\Server::get(IEventDispatcher::class);
 	}
 
 	/**
@@ -298,7 +298,7 @@ class User implements IUser {
 			\OC::$server->getCommentsManager()->deleteReadMarksFromUser($this);
 
 			/** @var AvatarManager $avatarManager */
-			$avatarManager = \OC::$server->query(AvatarManager::class);
+			$avatarManager = \OCP\Server::get(AvatarManager::class);
 			$avatarManager->deleteUserAvatar($this->uid);
 
 			$notification = \OC::$server->getNotificationManager()->createNotification();
@@ -306,7 +306,7 @@ class User implements IUser {
 			\OC::$server->getNotificationManager()->markProcessed($notification);
 
 			/** @var AccountManager $accountManager */
-			$accountManager = \OC::$server->query(AccountManager::class);
+			$accountManager = \OCP\Server::get(AccountManager::class);
 			$accountManager->deleteUser($this);
 
 			/** @deprecated 21.0.0 use UserDeletedEvent event with the IEventDispatcher instead */

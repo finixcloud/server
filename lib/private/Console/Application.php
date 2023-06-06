@@ -33,11 +33,11 @@ namespace OC\Console;
 use OC\MemoryInfo;
 use OC\NeedsUpdateException;
 use OC_App;
-use OCP\AppFramework\QueryException;
 use OCP\App\IAppManager;
 use OCP\Console\ConsoleEvent;
 use OCP\IConfig;
 use OCP\IRequest;
+use Psr\Container\ContainerExceptionInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Console\Application as SymfonyApplication;
 use Symfony\Component\Console\Input\InputInterface;
@@ -214,8 +214,8 @@ class Application {
 	private function loadCommandsFromInfoXml($commands) {
 		foreach ($commands as $command) {
 			try {
-				$c = \OC::$server->query($command);
-			} catch (QueryException $e) {
+				$c = \OCP\Server::get($command);
+			} catch (ContainerExceptionInterface $e) {
 				if (class_exists($command)) {
 					try {
 						$c = new $command();
