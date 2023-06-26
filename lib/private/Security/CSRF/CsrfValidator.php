@@ -28,11 +28,10 @@ namespace OC\Security\CSRF;
 use OCP\IRequest;
 
 class CsrfValidator {
-	private CsrfTokenManager $csrfTokenManager;
-
-	public function __construct(CsrfTokenManager $csrfTokenManager) {
-		$this->csrfTokenManager = $csrfTokenManager;
+	public function __construct(
+		private CsrfTokenManager $csrfTokenManager) {
 	}
+
 	public function validate(IRequest $request) {
 		if (!$request->passesStrictCookieCheck()) {
 			return false;
