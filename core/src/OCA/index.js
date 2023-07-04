@@ -21,6 +21,7 @@
  */
 
 import Search from './search.js'
+import TabbingRestriction from '../../js/tabbing-restriction.js'
 
 /**
  * Namespace for apps
@@ -32,4 +33,5 @@ export default {
 	 * @deprecated 20.0.0, will be removed in Nextcloud 22
 	 */
 	Search,
+	TabbingRestriction
 }
