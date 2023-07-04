@@ -32,52 +32,13 @@ use OCA\Files_External\Lib\Auth\AuthMechanism;
 use OCA\Files_External\Lib\Backend\Backend;
 use OCA\Files_External\Lib\StorageConfig;
 use OCA\Files_External\NotFoundException;
-use OCA\Files_External\Service\UserStoragesService;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\DataResponse;
-use OCP\IConfig;
-use OCP\IGroupManager;
-use OCP\IL10N;
-use OCP\ILogger;
-use OCP\IRequest;
-use OCP\IUserSession;
 
 /**
  * User storages controller
  */
 class UserStoragesController extends StoragesController {
-	/**
-	 * Creates a new user storages controller.
-	 *
-	 * @param string $AppName application name
-	 * @param IRequest $request request object
-	 * @param IL10N $l10n l10n service
-	 * @param UserStoragesService $userStoragesService storage service
-	 * @param ILogger $logger
-	 * @param IUserSession $userSession
-	 * @param IGroupManager $groupManager
-	 */
-	public function __construct(
-		$AppName,
-		IRequest $request,
-		IL10N $l10n,
-		UserStoragesService $userStoragesService,
-		ILogger $logger,
-		IUserSession $userSession,
-		IGroupManager $groupManager,
-		IConfig $config
-	) {
-		parent::__construct(
-			$AppName,
-			$request,
-			$l10n,
-			$userStoragesService,
-			$logger,
-			$userSession,
-			$groupManager,
-			$config
-		);
-	}
 
 	protected function manipulateStorageConfig(StorageConfig $storage) {
 		/** @var AuthMechanism */
@@ -232,6 +193,17 @@ class UserStoragesController extends StoragesController {
 	 * {@inheritdoc}
 	 */
 	public function destroy($id) {
+		if (!$this->backendService->isUserUnmountingAllowed()) {
+			return new DataResponse(
+				[
+					'message' => $this->l10n->t(
+						'Insufficient right to disconnect this storage'
+					)
+				],
+				Http::STATUS_NOT_FOUND
+			);
+		}
+
 		return parent::destroy($id);
 	}
 }

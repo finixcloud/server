@@ -51,43 +51,42 @@ class BackendService {
 	/** Priority constants for PriorityTrait */
 	public const PRIORITY_DEFAULT = 100;
 
-	/** @var IConfig */
-	protected $config;
 
-	/** @var bool */
-	private $userMountingAllowed = true;
+	private bool $userMountingAllowed = true;
+	private bool $userUnmountingAllowed = true;
 
 	/** @var string[] */
-	private $userMountingBackends = [];
+	private array $userMountingBackends;
 
 	/** @var Backend[] */
-	private $backends = [];
+	private array $backends = [];
 
 	/** @var IBackendProvider[] */
-	private $backendProviders = [];
+	private array $backendProviders = [];
 
 	/** @var AuthMechanism[] */
-	private $authMechanisms = [];
+	private array $authMechanisms = [];
 
 	/** @var IAuthMechanismProvider[] */
-	private $authMechanismProviders = [];
+	private array $authMechanismProviders = [];
 
 	/** @var callable[] */
-	private $configHandlerLoaders = [];
+	private array $configHandlerLoaders = [];
 
-	private $configHandlers = [];
+	private array $configHandlers = [];
 
 	/**
 	 * @param IConfig $config
 	 */
 	public function __construct(
-		IConfig $config
+		private IConfig $config
 	) {
-		$this->config = $config;
-
 		// Load config values
 		if ($this->config->getAppValue('files_external', 'allow_user_mounting', 'yes') !== 'yes') {
 			$this->userMountingAllowed = false;
+		}
+		if ($this->config->getAppValue('files_external', 'allow_user_unmounting', 'yes') !== 'yes') {
+			$this->userUnmountingAllowed = false;
 		}
 		$this->userMountingBackends = explode(',',
 			$this->config->getAppValue('files_external', 'user_mounting_backends', '')
@@ -277,6 +276,10 @@ class BackendService {
 	 */
 	public function isUserMountingAllowed() {
 		return $this->userMountingAllowed;
+	}
+
+	public function isUserUnmountingAllowed() {
+		return $this->userUnmountingAllowed;
 	}
 
 	/**
