@@ -404,6 +404,11 @@ export default {
 		 * @return {boolean}
 		 */
 		isSetDownloadButtonVisible() {
+			// TODO: implement download permission for circle shares instead of hiding the option
+			if (this.share && this.share.type === this.SHARE_TYPES.SHARE_TYPE_CIRCLE) {
+				return false
+			}
+
 			const allowedMimetypes = [
 				// Office documents
 				'application/msword',
