@@ -62,6 +62,13 @@ const state = {
 	usersOffset: 0,
 	usersLimit: 25,
 	userCount: 0,
+	showConfig: {
+		showStoragePath: false,
+		showUserBackend: false,
+		showLastLogin: false,
+		showNewUserForm: false,
+		showLanguages: false,
+	},
 }
 
 const mutations = {
@@ -221,6 +228,10 @@ const mutations = {
 		state.users = []
 		state.usersOffset = 0
 	},
+
+	setShowConfig(state, { key, value }) {
+		state.showConfig[key] = value
+	},
 }
 
 const getters = {
@@ -245,6 +256,9 @@ const getters = {
 	},
 	getUserCount(state) {
 		return state.userCount
+	},
+	getShowConfig(state) {
+		return state.showConfig
 	},
 }
 

@@ -128,9 +128,8 @@
 				</NcAppNavigationSettings>
 			</template>
 		</NcAppNavigation>
-		<NcAppContent>
-			<UserList :users="users"
-				:show-config="showConfig"
+		<NcAppContent ref="appContent">
+			<UserList :show-config="showConfig"
 				:selected-group="selectedGroupDecoded"
 				:external-actions="externalActions" />
 		</NcAppContent>
@@ -160,6 +159,7 @@ import { generateUrl } from '@nextcloud/router'
 
 import GroupListItem from '../components/GroupListItem.vue'
 import UserList from '../components/UserList.vue'
+import { unlimitedQuota } from '../utils/userUtils.ts'
 
 Vue.use(VueLocalStorage)
 
@@ -189,23 +189,17 @@ export default {
 	},
 	data() {
 		return {
-			// default quota is set to unlimited
-			unlimitedQuota: { id: 'none', label: t('settings', 'Unlimited') },
 			// temporary value used for multiselect change
 			selectedQuota: false,
 			externalActions: [],
 			loadingAddGroup: false,
 			loadingSendMail: false,
-			showConfig: {
-				showStoragePath: false,
-				showUserBackend: false,
-				showLastLogin: false,
-				showNewUserForm: false,
-				showLanguages: false,
-			},
 		}
 	},
 	computed: {
+		showConfig() {
+			return this.$store.getters.getShowConfig
+		},
 		selectedGroupDecoded() {
 			return this.selectedGroup ? decodeURIComponent(this.selectedGroup) : null
 		},
@@ -224,25 +218,33 @@ export default {
 
 		// Local settings
 		showLanguages: {
-			get() { return this.getLocalstorage('showLanguages') },
+			get() {
+				return this.getLocalstorage('showLanguages')
+			},
 			set(status) {
 				this.setLocalStorage('showLanguages', status)
 			},
 		},
 		showLastLogin: {
-			get() { return this.getLocalstorage('showLastLogin') },
+			get() {
+				return this.getLocalstorage('showLastLogin')
+			},
 			set(status) {
 				this.setLocalStorage('showLastLogin', status)
 			},
 		},
 		showUserBackend: {
-			get() { return this.getLocalstorage('showUserBackend') },
+			get() {
+				return this.getLocalstorage('showUserBackend')
+			},
 			set(status) {
 				this.setLocalStorage('showUserBackend', status)
 			},
 		},
 		showStoragePath: {
-			get() { return this.getLocalstorage('showStoragePath') },
+			get() {
+				return this.getLocalstorage('showStoragePath')
+			},
 			set(status) {
 				this.setLocalStorage('showStoragePath', status)
 			},
@@ -261,7 +263,7 @@ export default {
 			const quotaPreset = this.settings.quotaPreset.reduce((acc, cur) => acc.concat({ id: cur, label: cur }), [])
 			// add default presets
 			if (this.settings.allowUnlimitedQuota) {
-				quotaPreset.unshift(this.unlimitedQuota)
+				quotaPreset.unshift(unlimitedQuota)
 			}
 			return quotaPreset
 		},
@@ -271,11 +273,11 @@ export default {
 				if (this.selectedQuota !== false) {
 					return this.selectedQuota
 				}
-				if (this.settings.defaultQuota !== this.unlimitedQuota.id && OC.Util.computerFileSize(this.settings.defaultQuota) >= 0) {
+				if (this.settings.defaultQuota !== unlimitedQuota.id && OC.Util.computerFileSize(this.settings.defaultQuota) >= 0) {
 					// if value is valid, let's map the quotaOptions or return custom quota
 					return { id: this.settings.defaultQuota, label: this.settings.defaultQuota }
 				}
-				return this.unlimitedQuota // unlimited
+				return unlimitedQuota // unlimited
 			},
 			set(quota) {
 				this.selectedQuota = quota
@@ -340,17 +342,20 @@ export default {
 	},
 	methods: {
 		showNewUserMenu() {
-			this.showConfig.showNewUserForm = true
+			this.$store.commit('setShowConfig', {
+				key: 'showNewUserForm',
+				value: true,
+			})
 		},
 		getLocalstorage(key) {
 			// force initialization
 			const localConfig = this.$localStorage.get(key)
 			// if localstorage is null, fallback to original values
-			this.showConfig[key] = localConfig !== null ? localConfig === 'true' : this.showConfig[key]
+			this.$store.commit('setShowConfig', { key, value: localConfig !== null ? localConfig === 'true' : this.showConfig[key] })
 			return this.showConfig[key]
 		},
 		setLocalStorage(key, status) {
-			this.showConfig[key] = status
+			this.$store.commit('setShowConfig', { key, value: status })
 			this.$localStorage.set(key, status)
 			return status
 		},
@@ -363,7 +368,7 @@ export default {
 		setDefaultQuota(quota = 'none') {
 			// Make sure correct label is set for unlimited quota
 			if (quota === 'none') {
-				quota = this.unlimitedQuota
+				quota = unlimitedQuota
 			}
 			this.$store.dispatch('setAppConfig', {
 				app: 'files',
@@ -391,7 +396,7 @@ export default {
 			// only used for new presets sent through @Tag
 			const validQuota = OC.Util.computerFileSize(quota)
 			if (validQuota === null) {
-				return this.unlimitedQuota
+				return unlimitedQuota
 			} else {
 				// unify format output
 				quota = OC.Util.humanFileSize(OC.Util.computerFileSize(quota))
@@ -485,6 +490,14 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.app-content {
+	// Virtual list needs to be full height and is scrollable
+	display: flex;
+	overflow: hidden;
+	flex-direction: column;
+	max-height: 100%;
+}
+
 // force hiding the editing action for the add group entry
 .app-navigation__list #addgroup::v-deep .app-navigation-entry__utils {
 	display: none;
